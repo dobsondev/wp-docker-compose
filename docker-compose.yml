@@ -40,9 +40,9 @@ services:
       - wp_network
 
   # PHPMyAdmin Service
-  wha_pma:
+  phpmyadmin:
     image: phpmyadmin:latest
-    container_name: wha_pma
+    container_name: phpmyadmin
     ports:
       - 4000:80
     environment:
