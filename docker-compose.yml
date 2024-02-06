@@ -1,0 +1,65 @@
+##
+# For local use only
+##
+
+version: '3'
+
+# Services
+services:
+
+  # Wordpress Application Service
+  wordpress:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: wordpress
+    volumes:
+      - ./site/:/var/www/html
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - 80:80
+    depends_on:
+      - database
+    networks:
+      - wp_network
+
+  # Database Service
+  database:
+    image: mariadb:latest
+    environment:
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - 3306:3306
+    volumes:
+      - database_data:/var/lib/mysql
+      - ./docker/initdb:/docker-entrypoint-initdb.d
+    networks:
+      - wp_network
+
+  # PHPMyAdmin Service
+  wha_pma:
+    image: phpmyadmin:latest
+    container_name: wha_pma
+    ports:
+      - 4000:80
+    environment:
+      PMA_HOST: database
+      PMA_USER: wordpress
+      PMA_PASSWORD: wordpress
+    depends_on:
+      - database
+    networks:
+      - wp_network
+
+# Networks
+networks:
+  wp_network:
+    driver: bridge
+
+# Volumes
+volumes:
+  database_data:
+    driver: local
